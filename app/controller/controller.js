@@ -17,26 +17,27 @@ exports.signup = (req, res) => {
 		email: req.body.email,
 		password: bcrypt.hashSync(req.body.password, 10)
 	}).then(user => {
+		if (req.body.roles) {
 		Role.findAll({
 			where: {
-				name:  req.body.roles
-
+				name: req.body.roles
 			}
 		}).then(roles => {
-			var token = jwt.sign({ id: user.id }, config.secret, {
-				expiresIn: 86400 // expires in 24 hours
-			});
 			user.setRoles(roles).then(() => {
-				res.send({ auth: true, accessToken: token });
+				res.send({ message: "User registered successfully!" });
 			});
-		}).catch(err => {
-			console.log("object");
-			res.status(500).send("Error -> " + err);
 		});
-	}).catch(err => {
-		res.status(500).send("Error: " + err);
-	})
-}
+	} else {
+		// user role = 1
+		user.setRoles([1]).then(() => {
+			res.send({ message: "User registered successfully!" });
+		});
+	}
+})
+.catch(err => {
+	res.status(500).send({ message: err.message });
+});
+};
 
 exports.signin = (req, res) => {
 	User.findOne({
@@ -57,13 +58,19 @@ exports.signin = (req, res) => {
 			expiresIn: 86400 // expires in 24 hours
 		});
 
-		res.status(200).send({auth: true, accessToken: token, id: user.id, name: user.name, username: user.username, email: user.email})
+		var authorities = [];
+		user.getRoles().then(roles => {
+			for (let i = 0; i < roles.length; i++) {
+				authorities.push(roles[i].name.toUpperCase());
+			}
 
+		res.status(200).send({auth: true, accessToken: token, id: user.id, name: user.name, username: user.username, email: user.email, roles: authorities })
+		});
 	}).catch(err => {
 		res.status(500).send('Error: ' + err);
 		console.log(err);
 	});
-}
+};
 
 exports.userPage = (req, res) => {
 	User.findOne({
