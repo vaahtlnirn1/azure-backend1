@@ -230,7 +230,7 @@ exports.deviceDelete = (req, res) => {
 					message: "Device was deleted successfully!"
 				});
 			} else {
-				res.send({
+				res.status(404).send({
 					message: `Cannot delete device with id: ${id}.`
 				});
 			}
