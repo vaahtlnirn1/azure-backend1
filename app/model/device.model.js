@@ -1,11 +1,13 @@
 module.exports = (sequelize, Sequelize) => {
 	const Device = sequelize.define('devices', {
-		title: {
+		deviceId: {
 			type: Sequelize.STRING,
 			required: true
 		},
-		detail: {
-			type: Sequelize.STRING
+		devStatus: {
+			type: Sequelize.BOOLEAN,
+			allowNull: false,
+			defaultValue: true
 		},
 	});
 	return Device;

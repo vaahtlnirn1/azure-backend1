@@ -1,33 +1,35 @@
 const verifySignUp = require('./verifySignUp');
 const authJwt = require('./verifyJwtToken');
+const express = require('express');
+const router = express.Router();
 
 
-module.exports = function (app) {
+module.exports = function (router) {
 
 	const controller = require('../controller/controller.js');
-	app.get("/", (req, res) => {
+	router.get("/", (req, res) => {
 		res.json({ message: "Are you suggesting that coconuts migrate?" });
 
 	});
 
-	app.post('/signup', [verifySignUp.checkDuplicateUsernameOrEmail, verifySignUp.checkRoleExistence], controller.signup);
+	router.post('/signup', [verifySignUp.checkDuplicateUsernameOrEmail, verifySignUp.checkRoleExistence], controller.signup);
 
-	app.post('/signin', controller.signin);
+	router.post('/signin', controller.signin);
 
-	app.get('/dashboard', [authJwt.verifyToken], controller.mainDashboard);
+	router.get('/dashboard', [authJwt.verifyToken], controller.mainDashboard);
 
-	app.get('/user', [authJwt.verifyToken], controller.userPage, controller.mainDashboard);
+	router.get('/user', [authJwt.verifyToken], controller.userPage);
 
-	app.get('/pm', [authJwt.verifyToken, authJwt.checkIfModOrAdmin], controller.moderatorPage, controller.mainDashboard);
+	router.get('/pm', [authJwt.verifyToken, authJwt.checkIfModOrAdmin], controller.moderatorPage);
 
-	app.get('/admin', [authJwt.verifyToken, authJwt.checkIfAdmin], controller.adminPage, controller.mainDashboard);
+	router.get('/admin', [authJwt.verifyToken, authJwt.checkIfAdmin], controller.adminPage);
 
-	app.post('/devices', [authJwt.verifyToken, authJwt.checkIfModOrAdmin], controller.deviceAdd);
-	app.post('/devices', [authJwt.verifyToken, authJwt.checkIfAdmin], controller.deviceAdd);
-	app.get('/devices', [authJwt.verifyToken], controller.deviceList);
-	app.get('/device/:id', [authJwt.verifyToken], controller.deviceView);
-	app.put('/device/:id', [authJwt.verifyToken, authJwt.checkIfModOrAdmin], controller.deviceUpdate);
-	app.delete('/device/:id', [authJwt.verifyToken, authJwt.checkIfAdmin], controller.deviceDelete);
-	app.delete('/devices', [authJwt.verifyToken, authJwt.checkIfAdmin], controller.deviceDeleteAll);
+//	router.post('/devices', [authJwt.verifyToken, authJwt.checkIfModOrAdmin], controller.registry.create);
+//	router.post('/devices', [authJwt.verifyToken, authJwt.checkIfAdmin], controller.deviceAdd);
+	router.get('/devices', [authJwt.verifyToken], controller.deviceList);
+	router.get('/device/:id', [authJwt.verifyToken], controller.deviceView);
+	router.put('/device/:id', [authJwt.verifyToken, authJwt.checkIfModOrAdmin], controller.deviceUpdate);
+	router.delete('/device/:id', [authJwt.verifyToken, authJwt.checkIfAdmin], controller.deviceDelete);
+	router.delete('/devices', [authJwt.verifyToken, authJwt.checkIfAdmin], controller.deviceDeleteAll);
 
 }

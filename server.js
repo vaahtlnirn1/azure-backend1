@@ -9,6 +9,7 @@ var corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use(express.json());
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -18,9 +19,10 @@ const Role = db.role;
 
 db.sequelize.sync();
 // db.sequelize.sync({ force: true }).then(() => {
-//   console.log("Drop and re-sync db.");
+// console.log("Drop and re-sync db.");
+// initial();
 // });
-// CODE ABOVE MAY BE NECESSARY FOR DATABASE TESTING
+// CODE ABOVE MAY BE NECESSARY FOR DATABASE TESTING, ESPECIALLY IF DATABASE MIGRATION OCCURS BECAUSE THE "initial" FUNCTION ESTABLISHES ROLES, WHICH IS CRUCIAL
 
 require("./app/router/router.js")(app);
 

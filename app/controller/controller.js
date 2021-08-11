@@ -3,11 +3,20 @@ const config = require('../config/config.js');
 const User = db.user;
 const Role = db.role;
 const Device = db.device;
-
 const Op = db.Sequelize.Op;
 
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
+var iothub = require('azure-iothub');
+var connectionString = '';
+var registry = iothub.Registry.fromConnectionString(connectionString);
+
+deviceDescription = {
+	deviceId: iothub.deviceId,
+	status: iothub.devStatus,
+	connState: iothub.connectionState
+}
+
 
 exports.signup = (req, res) => {
 // User registration to database
@@ -24,11 +33,10 @@ exports.signup = (req, res) => {
 			}
 		}).then(roles => {
 			user.setRoles(roles).then(() => {
-				res.send({ message: "User registered successfully!" });
+				res.send({ message: "Role registered successfully!" });
 			});
 		});
 	} else {
-		// user role = 1
 		user.setRoles([1]).then(() => {
 			res.send({ message: "User registered successfully!" });
 		});
@@ -144,42 +152,24 @@ exports.moderatorPage = (req, res) => {
 	})
 }
 
-
-
-// Device creation
-exports.deviceAdd = (req, res) => {
-	if (!req.body.title) {
-		res.status(400).send({
-			message: "Content can not be empty!"
-		});
-		return;
-	}
-	const device = {
-		title: req.body.title,
-		detail: req.body.detail,
-		published: req.body.published ? req.body.published : false
-	};
-	// Device saves to the database
-	Device.create(device)
-		.then(data => {
-			console.log(data);
-			res.send(data);
-		})
-		.catch(err => {
-			res.status(500).send({
-				message:
-					err.message || "An error has occurred while creating the device."
-			});
-		});
-}
-
 exports.deviceList = (req, res) => {
-	Device.findAll()
-		.then(device =>
-			res.json(device)
-		)
+	var query = registry.createQuery('SELECT * FROM devices', 100);
+	var onResults = function (err, results) {
+		if (err) {
+			console.error('Failed to fetch the results: ' + err.message);
+		} else {
+			// Do something with the results
+			results.forEach(function (twin) {
+				console.log(twin.deviceId);
+				res.send(twin.deviceId);
+			});
+			if (query.hasMoreResults) {
+				query.nextAsTwin(onResults);
+			}
+		}
+	};
+	query.nextAsTwin(onResults);
 }
-
 
 // View a device
 exports.deviceView = function (req, res) {
@@ -261,7 +251,7 @@ exports.deviceDeleteAll = (req, res) => {
 
 exports.mainDashboard = (req, res) => {
 	User.findOne({
-		where: { id: req.userId },
+		where: {id: req.userId},
 		attributes: ['name', 'username', 'email'],
 		include: [{
 			model: Role,
