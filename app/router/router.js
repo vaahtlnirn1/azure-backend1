@@ -28,5 +28,6 @@ module.exports = function (app) {
 	app.get('/device/:id', [authJwt.verifyToken], controller.deviceView);
 	app.put('/device/:id', [authJwt.verifyToken, authJwt.checkIfModOrAdmin], controller.deviceUpdate);
 	app.delete('/device/:id', [authJwt.verifyToken, authJwt.checkIfAdmin], controller.deviceDelete);
+	app.delete('/devices', [authJwt.verifyToken, authJwt.checkIfAdmin], controller.deviceDeleteAll);
 
 }

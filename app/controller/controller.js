@@ -27,7 +27,7 @@ exports.signup = (req, res) => {
 				expiresIn: 86400 // expires in 24 hours
 			});
 			user.setRoles(roles).then(() => {
-				res.send({ auth: true, accessToken: token});
+				res.send({ auth: true, accessToken: token });
 			});
 		}).catch(err => {
 			console.log("object");
@@ -137,17 +137,33 @@ exports.moderatorPage = (req, res) => {
 	})
 }
 
+
+
 // Device creation
 exports.deviceAdd = (req, res) => {
-	// User registration to database
-	Device.create({
+	if (!req.body.title) {
+		res.status(400).send({
+			message: "Content can not be empty!"
+		});
+		return;
+	}
+	const device = {
 		title: req.body.title,
 		detail: req.body.detail,
-	}).then(device => {
-		res.send("Device has been successfully saved.");
-	}).catch(err => {
-		res.status(500).send("Error: " + err);
-	})
+		published: req.body.published ? req.body.published : false
+	};
+	// Device saves to the database
+	Device.create(device)
+		.then(data => {
+			console.log(data);
+			res.send(data);
+		})
+		.catch(err => {
+			res.status(500).send({
+				message:
+					err.message || "An error has occurred while creating the device."
+			});
+		});
 }
 
 exports.deviceList = (req, res) => {
@@ -168,33 +184,72 @@ exports.deviceView = function (req, res) {
 }
 
 
-// Update a note
-exports.deviceUpdate = function (req, res) {
-	Device.update(
-		{
-			detail: req.body.detail,
-			title: req.body.title,
+// Update a device
+exports.deviceUpdate = (req, res) => {
+	const id = req.params.id;
 
-		},
-		{
-			where: { id: req.params.id }
-		}
-	).then(device =>
-		res.json(device)
-	).catch(err => {
-		res.status(500).send("Error: " + err);
+	Device.update(req.body, {
+		where: { id: id }
 	})
-}
+		.then(num => {
+			if (num == 1) {
+				res.send({
+					message: "Device was updated successfully."
+				});
+			} else {
+				res.send({
+					message: `Cannot update device with id=${id}. Maybe device was not found or req.body is empty!`
+				});
+			}
+		})
+		.catch(err => {
+			res.status(500).send({
+				message: "Error updating device with id=" + id
+			});
+		});
+};
 
 
-// Delete a note
-exports.deviceDelete = function (req, res) {
+// Delete a device
+exports.deviceDelete = (req, res) => {
+	const id = req.params.id;
+
 	Device.destroy({
-		where: { id: req.params.id }
-	}).then(device =>
-		res.json("The device has been successfully deleted.")
-	)
-}
+		where: { id: id }
+	})
+		.then(num => {
+			if (num == 1) {
+				res.send({
+					message: "Device was deleted successfully!"
+				});
+			} else {
+				res.send({
+					message: `Cannot delete device with id: ${id}.`
+				});
+			}
+		})
+		.catch(err => {
+			res.status(500).send({
+				message: "Could not delete device with id: " + id
+			});
+		});
+};
+
+exports.deviceDeleteAll = (req, res) => {
+	Device.destroy({
+		where: {},
+		truncate: false
+	})
+		.then(nums => {
+			res.send({ message: `${nums} devices were deleted successfully!` });
+		})
+		.catch(err => {
+			res.status(500).send({
+				message:
+					err.message || "Some error occurred while removing all devices."
+			});
+		});
+};
 
 
 exports.mainDashboard = (req, res) => {
