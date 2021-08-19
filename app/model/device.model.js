@@ -6,8 +6,7 @@ module.exports = (sequelize, Sequelize) => {
 		},
 		devStatus: {
 			type: Sequelize.BOOLEAN,
-			allowNull: false,
-			defaultValue: true
+			allowNull: false
 		},
 	});
 	return Device;

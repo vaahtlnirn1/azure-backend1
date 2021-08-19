@@ -18,10 +18,11 @@ const db = require('./app/config/db.config');
 const Role = db.role;
 
 db.sequelize.sync();
-// db.sequelize.sync({ force: true }).then(() => {
-// console.log("Drop and re-sync db.");
-// initial();
-// });
+console.log("Current database syncing (no drop)!\n");
+//db.sequelize.sync({ force: true }).then(() => {
+//console.log("Dropping and re-creating database.");
+//initial();
+//});
 // CODE ABOVE MAY BE NECESSARY FOR DATABASE TESTING, ESPECIALLY IF DATABASE MIGRATION OCCURS BECAUSE THE "initial" FUNCTION ESTABLISHES ROLES, WHICH IS CRUCIAL
 
 require("./app/router/router.js")(app);
@@ -31,7 +32,7 @@ var server = app.listen(3000, function () {
   var host = server.address().address
   var port = server.address().port
 
-  console.log("App listening at http://%s:%s", host, port)
+  console.log("App listening at http://%s:%s\n", host, port)
 })
 
 function initial(){
