@@ -2,7 +2,7 @@ const db = require('../config/db.config.js');
 const config = require('../config/config.js');
 const User = db.user;
 const Role = db.role;
-const Device = db.deviceId;
+const Device = db.devices;
 const Op = db.Sequelize.Op;
 
 var jwt = require('jsonwebtoken');
@@ -185,7 +185,7 @@ exports.mainDashboard = (req, res) => {
 
 // DEVICE SECTION START
 
-exports.deviceList = (req, res) => {
+exports.deviceList = (req, res, twin) => {
 	let query1 = registry.createQuery('SELECT * FROM devices');
 	let onResults = function (err, results) {
 		if (err) {
@@ -193,16 +193,23 @@ exports.deviceList = (req, res) => {
 		} else {
 			results.forEach(async (twin) =>  {
 				try {
-				await db.sequelize.query("INSERT INTO devices (deviceId) SELECT (?) WHERE NOT EXISTS (SELECT deviceID FROM devices WHERE deviceId = (?))",
+				await db.sequelize.query("IF EXISTS(SELECT deviceID FROM devices WHERE deviceId = (?) ) UPDATE devices SET devStatus = (?), connState = (?), version = (?) WHERE deviceId = (?) ELSE INSERT INTO devices (deviceId, devStatus, connState, version) SELECT (?), (?), (?), (?)",
 					{
-					// 	IF EXISTS(SELECT deviceID FROM devices WHERE deviceId = (?) ) PRINT 'moi' ELSE INSERT INTO devices (deviceId, devStatus) SELECT (?), 1
-					// 	IF EXISTS(SELECT deviceID FROM devices WHERE deviceId = (N'10521c89b0fc') ) print 'moi' ELSE INSERT INTO devices (deviceId, devStatus) SELECT N'10521c89b0fc', 1
-					//	Continue tomorrow with above query
-					//   The SQL query below initializes the device information to the database. For testing/rebuilding purposes, paste between quotation marks after 'await' line and put 'twin.deviceId' as the replacement for each question mark.
-					//	 INSERT INTO devicesTable (deviceId) SELECT (?) WHERE NOT EXISTS (SELECT deviceID FROM devicesTable WHERE deviceId = (?))
-						replacements: [twin.deviceId, twin.deviceId],
+					// IF EXISTS(SELECT deviceID FROM devices WHERE deviceId = (?) ) UPDATE devices SET devStatus = (?), connState = (?), version = (?) WHERE deviceId = (?) ELSE INSERT INTO devices (deviceId, devStatus, connState, version) SELECT (?), (?), (?), (?)
+					// UPDATE devices SET devStatus = (?), connState = (?), version = (?) WHERE deviceId = (?)
+					// IF EXISTS(SELECT deviceID FROM devices WHERE deviceId = (?) ) PRINT 'moi' ELSE INSERT INTO devices (deviceId, devStatus, connState, version) SELECT (?), (?), (?), (?)
+						replacements: [twin.deviceId, twin.status, twin.connectionState, twin.version, twin.deviceId, twin.deviceId, twin.status, twin.connectionState, twin.version],
 						type: QueryTypes.INSERT
 					});
+				// The function above this line and the function below this line can be used to accomplish the same task, except that the bottom function can not currently update database with a query from IoT Hub (a kind of "sync").
+			/*		Device.create({
+						deviceId: twin.deviceId,
+						devStatus: twin.status,
+						connState: twin.connectionState,
+						version: twin.version
+					}).then(device => {
+						console.log(device);
+					}) */
 				} catch (e) {
 					console.error(e);
 				}
@@ -219,29 +226,38 @@ exports.deviceList = (req, res) => {
 }
 
 // View a device
-exports.deviceView = (req, res) => {
-	console.log(req.params.id);
-	let query = db.sequelize.query("SELECT * FROM devices WHERE id = ('35')",
+exports.deviceView = (req, res, err) => {
+	const id = req.params.id;
+	Device.findByPk(id)
+		.then(data => {
+			res.send(data);
+		})
+		.catch(err => {
+			res.status(500).send({
+				message: "Error retrieving device with id=" + id
+			});
+		});
+};
+/*	let query = db.sequelize.query("SELECT * FROM devices WHERE id = (?)",
 		{
-			replacements: [req.params.id],
+			replacements: [id],
 			type: QueryTypes.SELECT
 		});
-	var onResults = (err, results, twin) => {
+	    console.log(query);
 		if (err) {
 			console.error('Failed to fetch the results: ' + err.message);
 		} else {
 			if (query) {
 				// Do something with the results
-				console.log(JSON.stringify(twin.deviceId));
-				res.send(twin.deviceId);
+				console.log(JSON.stringify(query.deviceId));
+				res.send(query.deviceId);
 			}
 			if (query.hasMoreResults) {
 				console.log('Next page...');
 				query.nextAsTwin(onResults);
-			}
 		}
 	};
-}
+} */
 
 // Update a device
 exports.deviceUpdate = (req, res) => {

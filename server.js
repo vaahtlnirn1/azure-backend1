@@ -2,6 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 const cors = require("cors");
 
+
 var app = express();
 
 var corsOptions = {
@@ -23,7 +24,7 @@ console.log("Current database syncing (no drop)!\n");
 //console.log("Dropping and re-creating database.");
 //initial();
 //});
-// CODE ABOVE MAY BE NECESSARY FOR DATABASE TESTING, ESPECIALLY IF DATABASE MIGRATION OCCURS BECAUSE THE "initial" FUNCTION ESTABLISHES ROLES, WHICH IS CRUCIAL
+// CODE ABOVE IS NECESSARY FOR DATABASE TESTING, ESPECIALLY IF DATABASE MIGRATION OCCURS BECAUSE THE "initial" FUNCTION ESTABLISHES ROLES AND CONSTRAINTS OF 'devStatus' COLUMN, WHICH ARE CRUCIAL
 
 require("./app/router/router.js")(app);
 
@@ -49,5 +50,20 @@ function initial(){
     Role.create({
         id: 3,
         name: "PM"
+    });
+    let queryInterface = db.sequelize.getQueryInterface();
+    queryInterface.addConstraint('devices', {
+        fields: ['devStatus'],
+        type: 'check',
+        where: {
+            devStatus: ['enabled', 'disabled'],
+        },
+    });
+    queryInterface.addConstraint('devices', {
+        fields: ['connState'],
+        type: 'check',
+        where: {
+            connState: ['Connected', 'Disconnected']
+        },
     });
 }
