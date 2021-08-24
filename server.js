@@ -24,7 +24,7 @@ console.log("Current database syncing (no drop)!\n");
 //console.log("Dropping and re-creating database.");
 //initial();
 //});
-// CODE ABOVE IS NECESSARY FOR DATABASE TESTING, ESPECIALLY IF DATABASE MIGRATION OCCURS BECAUSE THE "initial" FUNCTION ESTABLISHES ROLES AND CONSTRAINTS OF 'devStatus' COLUMN, WHICH ARE CRUCIAL
+// CODE ABOVE IS NECESSARY FOR DATABASE TESTING, ESPECIALLY IF DATABASE MIGRATION OCCURS BECAUSE THE "initial" FUNCTION ESTABLISHES ROLES AND CONSTRAINTS OF COLUMNS, WHICH ARE CRUCIAL
 
 require("./app/router/router.js")(app);
 
@@ -51,7 +51,7 @@ function initial(){
         id: 3,
         name: "PM"
     });
-    let queryInterface = db.sequelize.getQueryInterface();
+/*    let queryInterface = db.sequelize.getQueryInterface();
     queryInterface.addConstraint('devices', {
         fields: ['devStatus'],
         type: 'check',
@@ -65,5 +65,5 @@ function initial(){
         where: {
             connState: ['Connected', 'Disconnected']
         },
-    });
+    }); */
 }

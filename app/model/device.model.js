@@ -2,18 +2,11 @@ module.exports = (sequelize, Sequelize) => {
 	const Device = sequelize.define('devices', {
 		deviceId: {
 			type: Sequelize.STRING,
-			required: true
+			required: true,
+			unique: true
 		},
-		devStatus: {
+		devDescription: {
 			type: Sequelize.STRING,
-			allowNull: false
-		},
-		connState: {
-			type: Sequelize.STRING,
-			allowNull: false
-		},
-		version: {
-			type: Sequelize.INTEGER,
 			allowNull: false
 		},
 		createdAt: {
