@@ -6,41 +6,9 @@ var connectionString = '';
 var registry = iothub.Registry.fromConnectionString(connectionString);
 
 exports.deviceList = (req, res) => {
-/*    let query1 = registry.createQuery('SELECT * FROM devices');
-    let onResults = function (err, results) {
-        if (err) {
-            console.error('Failed to fetch the results: ' + err.message);
-        } else {
-            results.forEach(async (twin) =>  {
-                try {
-                    await db.sequelize.query("IF EXISTS(SELECT deviceID FROM devices WHERE deviceId = (?) ) UPDATE devices SET devDescription = (?) WHERE deviceId = (?) ELSE INSERT INTO devices (deviceId, devDescription) SELECT (?), (?)",
-                        {
-                            // IF EXISTS(SELECT deviceID FROM devices WHERE deviceId = (?) ) UPDATE devices SET devStatus = (?), connState = (?), version = (?) WHERE deviceId = (?) ELSE INSERT INTO devices (deviceId, devStatus, connState, version) SELECT (?), (?), (?), (?)
-                            // UPDATE devices SET devStatus = (?), connState = (?), version = (?) WHERE deviceId = (?)
-                            // IF EXISTS(SELECT deviceID FROM devices WHERE deviceId = (?) ) PRINT 'moi' ELSE INSERT INTO devices (deviceId, devStatus, connState, version) SELECT (?), (?), (?), (?)
-                            replacements: [twin.deviceId, twin.status, twin.deviceId, twin.deviceId, twin.status],
-                            type: QueryTypes.INSERT
-                        });
-                    // The function above this line and the function below this line can be used to accomplish the same task, except that the bottom function can not currently update database with a query from IoT Hub (a kind of "sync").
-                    /*		Device.create({
-                                deviceId: twin.deviceId,
-                                devDescription: twin.status,
-                            }).then(device => {
-                                console.log(device);
-                            }) */
-         /*       } catch (e) {
-                    console.error(e);
-                }
-            });         */
             Device.findAll()
                 .then(device =>
                     res.json(device))
-/*            if (query1) {
-                console.log("Success!");
-            }
-        }
-    };
-    query1.nextAsTwin(onResults); */
 }
 
 exports.deviceListSync = (req, res) => {
@@ -51,12 +19,10 @@ exports.deviceListSync = (req, res) => {
         } else {
             results.forEach(async (twin) =>  {
                 try {
-                    await db.sequelize.query("IF EXISTS(SELECT deviceID FROM devices WHERE deviceId = (?) ) UPDATE devices SET devDescription = (?) WHERE deviceId = (?) ELSE INSERT INTO devices (deviceId, devDescription) SELECT (?), (?)",
+                    await db.sequelize.query("IF EXISTS(SELECT deviceID FROM devices WHERE deviceId = (?) ) UPDATE devices SET devStatus = (?) WHERE deviceId = (?) ELSE INSERT INTO devices (deviceId, devStatus, freeDescription) SELECT (?), (?), (?)",
                         {
-                            // IF EXISTS(SELECT deviceID FROM devices WHERE deviceId = (?) ) UPDATE devices SET devStatus = (?), connState = (?), version = (?) WHERE deviceId = (?) ELSE INSERT INTO devices (deviceId, devStatus, connState, version) SELECT (?), (?), (?), (?)
-                            // UPDATE devices SET devStatus = (?), connState = (?), version = (?) WHERE deviceId = (?)
-                            // IF EXISTS(SELECT deviceID FROM devices WHERE deviceId = (?) ) PRINT 'moi' ELSE INSERT INTO devices (deviceId, devStatus, connState, version) SELECT (?), (?), (?), (?)
-                            replacements: [twin.deviceId, twin.status, twin.deviceId, twin.deviceId, twin.status],
+                            // IF EXISTS(SELECT deviceID FROM devices WHERE deviceId = (?) ) UPDATE devices SET devStatus = (?) WHERE deviceId = (?) ELSE INSERT INTO devices (deviceId, devStatus, freeDescription) SELECT (?), (?), (?), (?)
+                            replacements: [twin.deviceId, 1, twin.deviceId, twin.deviceId, 1, 'Write any extra notes here :)'],
                             type: QueryTypes.INSERT
                         });
                 } catch (e) {

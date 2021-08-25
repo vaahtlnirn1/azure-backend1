@@ -5,7 +5,11 @@ module.exports = (sequelize, Sequelize) => {
 			required: true,
 			unique: true
 		},
-		devDescription: {
+		devStatus: {
+			type: Sequelize.BOOLEAN,
+			allowNull: false
+		},
+		freeDescription: {
 			type: Sequelize.STRING,
 			allowNull: false
 		},

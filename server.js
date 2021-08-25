@@ -33,7 +33,7 @@ var server = app.listen(3000, function () {
   var host = server.address().address
   var port = server.address().port
 
-  console.log("App listening at http://%s:%s\n", host, port)
+    console.log("App listening at http://%s:%s\n", host, port)
 })
 
 function initial(){
@@ -59,7 +59,7 @@ function initial(){
             devStatus: ['enabled', 'disabled'],
         },
     });
-    queryInterface.addConstraint('devices', {
+/*    queryInterface.addConstraint('devices', {
         fields: ['connState'],
         type: 'check',
         where: {
