@@ -1,6 +1,7 @@
 const verifySignUp = require('./verifySignUp');
 const authJwt = require('./verifyJwtToken');
 const express = require('express');
+const deviceController = require("../controller/deviceController.js");
 const router = express.Router();
 
 

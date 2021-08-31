@@ -6,10 +6,16 @@ var connectionString = '';
 var registry = iothub.Registry.fromConnectionString(connectionString);
 
 exports.deviceList = (req, res) => {
-            Device.findAll()
-                .then(device =>
-                    res.json(device))
-}
+    Device.findAll()
+        .then(device =>
+            res.json(device))
+        .catch(err => {
+            res.status(500).send({
+                message:
+                    err.message || "Could not retrieve devices."
+            });
+        });
+};
 
 exports.deviceListSync = (req, res) => {
     let query1 = registry.createQuery('SELECT * FROM devices');
@@ -38,22 +44,24 @@ exports.deviceListSync = (req, res) => {
         }
     };
     query1.nextAsTwin(onResults);
-}
+};
 
 // View a device
 exports.deviceView = (req, res, err) => {
     const id = req.params.id;
-
+//    `SELECT * FROM devices WHERE deviceId = '${data.deviceId}'`
     Device.findByPk(id)
         .then(data => {
-            res.send(data);
+            registry.getTwin(data.deviceId, function(err, twin) {
+                if (err) {
+                    console.error(err.message);
+                } else {
+                    console.log(JSON.stringify(twin, null, 2));
+                }
+                res.send(data);
+
         })
-        .catch(err => {
-            res.status(500).send({
-                message: "Error retrieving device with id=" + id
-            });
-        });
-};
+})};
 
 // Update a device
 exports.deviceUpdate = (req, res) => {
