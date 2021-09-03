@@ -52,16 +52,40 @@ exports.deviceView = (req, res, err) => {
 //    `SELECT * FROM devices WHERE deviceId = '${data.deviceId}'`
     Device.findByPk(id)
         .then(data => {
-            registry.getTwin(data.deviceId, function(err, twin) {
+/*            registry.getTwin(data.deviceId, function(err, twin) {
                 if (err) {
                     console.error(err.message);
                 } else {
                     console.log(JSON.stringify(twin, null, 2));
-                }
+                } */
                 res.send(data);
-
-        })
+ //       })
 })};
+
+exports.getTwin = (req, res) => {
+    db.sequelize.query(`SELECT deviceId FROM devices WHERE id = ${req.params.id}`)
+            .then(function(result) {
+                    console.log(JSON.stringify(result));
+                    let beginningSliceCharacterCount = 15;
+                    let endingSliceCharacterCount = -6;
+                    let properResult = JSON.stringify(result).slice(beginningSliceCharacterCount, endingSliceCharacterCount);
+                    console.log(properResult);
+                let query1 = registry.createQuery(`SELECT * FROM devices WHERE deviceId = '${properResult}'`);
+                console.log(`SELECT * FROM devices WHERE deviceId = '${properResult}'`);
+                let onResults = function (err, data, twin) {
+                    if (err) {
+                        console.error('Failed to fetch the results: ' + err.message);
+                    } else {
+                        res.send(data);
+                    }}
+                query1.nextAsTwin(onResults);
+            })
+        .catch(err => {
+            res.status(500).send({
+                message:
+                    err.message || "Could not retrieve result of query."
+            });
+})}
 
 // Update a device
 exports.deviceUpdate = (req, res) => {

@@ -27,6 +27,7 @@ module.exports = function (router) {
 	router.put('/devices', [authJwt.verifyToken], deviceController.deviceListSync);
 	router.get('/device/:id', [authJwt.verifyToken], deviceController.deviceView);
 	router.put('/device/:id', [authJwt.verifyToken, authJwt.checkIfModOrAdmin], deviceController.deviceUpdate);
+	router.post('/device/:id', [authJwt.verifyToken, authJwt.checkIfModOrAdmin], deviceController.getTwin);
 	router.delete('/device/:id', [authJwt.verifyToken, authJwt.checkIfAdmin], deviceController.deviceDelete);
 	router.delete('/devices', [authJwt.verifyToken, authJwt.checkIfAdmin], deviceController.deviceDeleteAll);
 }
