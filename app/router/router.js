@@ -1,8 +1,5 @@
 const verifySignUp = require('./verifySignUp');
 const authJwt = require('./verifyJwtToken');
-const express = require('express');
-const deviceController = require("../controller/deviceController.js");
-const router = express.Router();
 
 
 module.exports = function (router) {
@@ -26,8 +23,8 @@ module.exports = function (router) {
 	router.get('/devices', [authJwt.verifyToken], deviceController.deviceList);
 	router.put('/devices', [authJwt.verifyToken], deviceController.deviceListSync);
 	router.get('/device/:id', [authJwt.verifyToken], deviceController.deviceView);
-	router.put('/device/:id', [authJwt.verifyToken, authJwt.checkIfModOrAdmin], deviceController.deviceUpdate);
-	router.post('/device/:id', [authJwt.verifyToken, authJwt.checkIfModOrAdmin], deviceController.getTwin);
+	router.put('/device/:id', [authJwt.verifyToken], deviceController.deviceUpdate);
+	router.post('/device/:id', [authJwt.verifyToken], deviceController.getTwin);
 	router.delete('/device/:id', [authJwt.verifyToken, authJwt.checkIfAdmin], deviceController.deviceDelete);
 	router.delete('/devices', [authJwt.verifyToken, authJwt.checkIfAdmin], deviceController.deviceDeleteAll);
 }
