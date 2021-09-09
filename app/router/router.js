@@ -1,7 +1,6 @@
 const verifySignUp = require('./verifySignUp');
 const authJwt = require('./verifyJwtToken');
 
-
 module.exports = function (router) {
 
 	const controller = require('../controller/controller.js');
@@ -19,7 +18,6 @@ module.exports = function (router) {
 	router.get('/pm', [authJwt.verifyToken, authJwt.checkIfModOrAdmin], controller.moderatorPage);
 	router.get('/admin', [authJwt.verifyToken, authJwt.checkIfAdmin], controller.adminPage);
 
-//	router.post('/devices', [authJwt.verifyToken, authJwt.checkIfAdmin], controller.deviceAdd);
 	router.get('/devices', [authJwt.verifyToken], deviceController.deviceList);
 	router.put('/devices', [authJwt.verifyToken], deviceController.deviceListSync);
 	router.get('/device/:id', [authJwt.verifyToken], deviceController.deviceView);

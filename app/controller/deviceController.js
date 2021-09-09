@@ -1,9 +1,9 @@
 const db = require("../config/db.config.js");
 const Device = db.devices;
-var iothub = require('azure-iothub');
+let iothub = require('azure-iothub');
 const {QueryTypes} = require("sequelize");
-var connectionString = '';
-var registry = iothub.Registry.fromConnectionString(connectionString);
+let connectionString = '';
+let registry = iothub.Registry.fromConnectionString(connectionString);
 
 exports.deviceList = (req, res) => {
     Device.findAll()
@@ -18,7 +18,7 @@ exports.deviceList = (req, res) => {
 };
 
 exports.deviceListSync = (req, res) => {
-    let query1 = registry.createQuery('SELECT * FROM devices');
+    let query = registry.createQuery('SELECT * FROM devices');
     let onResults = function (err, results) {
         if (err) {
             console.error('Failed to fetch the results: ' + err.message);
@@ -38,29 +38,28 @@ exports.deviceListSync = (req, res) => {
             Device.findAll()
                 .then(device =>
                     res.json(device))
-            if (query1) {
+            if (query) {
                 console.log("Success!");
             }
         }
     };
-    query1.nextAsTwin(onResults);
+    query.nextAsTwin(onResults);
 };
 
 // View a device
 exports.deviceView = (req, res, err) => {
     const id = req.params.id;
-//    `SELECT * FROM devices WHERE deviceId = '${data.deviceId}'`
     Device.findByPk(id)
         .then(data => {
-/*            registry.getTwin(data.deviceId, function(err, twin) {
-                if (err) {
-                    console.error(err.message);
-                } else {
-                    console.log(JSON.stringify(twin, null, 2));
-                } */
                 res.send(data);
- //       })
-})};
+})
+        .catch(err => {
+            res.status(500).send({
+                message:
+                    err.message || "Some error occurred while retrieving the specified device."
+            });
+        });
+};
 
 exports.getTwin = (req, res) => {
     db.sequelize.query(`SELECT deviceId FROM devices WHERE id = ${req.params.id}`)
@@ -72,7 +71,7 @@ exports.getTwin = (req, res) => {
                     console.log(properResult);
                 let query1 = registry.createQuery(`SELECT * FROM devices WHERE deviceId = '${properResult}'`);
                 console.log(`SELECT * FROM devices WHERE deviceId = '${properResult}'`);
-                let onResults = function (err, data, twin) {
+                let onResults = function (err, data) {
                     if (err) {
                         console.error('Failed to fetch the results: ' + err.message);
                     } else {
@@ -107,7 +106,8 @@ exports.deviceUpdate = (req, res) => {
         })
         .catch(err => {
             res.status(500).send({
-                message: "Error updating device with id=" + id
+                message:
+                    err.message || "Some error occurred while updating the specified device."
             });
         });
 };
@@ -133,7 +133,8 @@ exports.deviceDelete = (req, res) => {
         })
         .catch(err => {
             res.status(500).send({
-                message: "Could not delete device with id: " + id
+                message:
+                    err.message || "Some error occurred while removing the specified device."
             });
         });
 };

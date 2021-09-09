@@ -1,11 +1,10 @@
-var express = require('express');
-var bodyParser = require('body-parser');
+let express = require('express');
+let bodyParser = require('body-parser');
 const cors = require("cors");
 
+let app = express();
 
-var app = express();
-
-var corsOptions = {
+let corsOptions = {
 	origin: "http://localhost:8083"
 };
 
@@ -28,13 +27,10 @@ console.log("Current database syncing (no drop)!\n");
 
 require("./app/router/router.js")(app);
 
-var server = app.listen(3000, function () {
-
-  var host = server.address().address
-  var port = server.address().port
-
-    console.log("App listening at http://%s:%s\n", host, port)
-})
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server started on port ${PORT}.\n`);
+});
 
 function initial(){
     Role.create({

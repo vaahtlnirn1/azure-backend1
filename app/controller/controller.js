@@ -3,8 +3,8 @@ const config = require('../config/config.js');
 const User = db.user;
 const Role = db.role;
 
-var jwt = require('jsonwebtoken');
-var bcrypt = require('bcryptjs');
+let jwt = require('jsonwebtoken');
+let bcrypt = require('bcryptjs');
 
 // CONTROLLER SECTIONS ORDER: AUTHENTICATION, PAGES
 
@@ -26,12 +26,12 @@ exports.signup = (req, res) => {
 			}
 		}).then(roles => {
 			user.setRoles(roles).then(() => {
-				res.send({ message: "Role registered successfully." });
+				res.send({ message: "User and role registered successfully." });
 			});
 		});
 	} else {
 		user.setRoles([1]).then(() => {
-			res.send({ message: "User registered successfully." });
+			res.send({ message: "Registered as role 'USER'." });
 		});
 	}
 })
@@ -50,16 +50,16 @@ exports.signin = (req, res) => {
 			return res.status(400).send('The specified user does not match any registered user.');
 		}
 
-		var passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
+		let passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
 		if (!passwordIsValid) {
 			return res.status(401).send({ auth: false, accessToken: null, reason: "Your entered password is incorrect. Please try again." });
 		}
 
-		var token = jwt.sign({ id: user.id } , config.secret, {
+		let token = jwt.sign({ id: user.id } , config.secret, {
 			expiresIn: 86400 // expires in 24 hours
 		});
 
-		var authorities = [];
+		let authorities = [];
 		user.getRoles().then(roles => {
 			for (let i = 0; i < roles.length; i++) {
 				authorities.push(roles[i].name.toUpperCase());

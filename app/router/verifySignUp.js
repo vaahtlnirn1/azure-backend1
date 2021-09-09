@@ -2,7 +2,6 @@ const db = require('../config/db.config.js');
 const config = require('../config/config.js');
 const ROLEs = config.ROLEs;
 const User = db.user;
-const Role = db.role;
 
 checkDuplicateUsernameOrEmail = (req, res, next) => {
 	// Checks for existence of username
